@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#6c63ff" />
+  <title>Juniorobot</title>
+  <style>
+    :root{
+      --bg:#f5f7ff;
+      --card:#ffffff;
+      --primary:#6c63ff;
+      --primary-dark:#5148e8;
+      --accent:#22c55e;
+      --danger:#ef4444;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --bot:#eef2ff;
+      --user:#dcfce7;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:linear-gradient(135deg,#eef2ff,#fdf2f8);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      padding:18px;
+    }
+
+    .app{
+      width:min(900px,100%);
+      display:grid;
+      gap:16px;
+    }
+
+    .hero{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:22px;
+      box-shadow:0 14px 40px rgba(0,0,0,.08);
+      display:flex;
+      align-items:center;
+      gap:16px;
+    }
+
+    .robot{
+      width:72px;
+      height:72px;
+      border-radius:22px;
+      background:var(--primary);
+      display:grid;
+      place-items:center;
+      font-size:38px;
+      box-shadow:0 10px 25px rgba(108,99,255,.28);
+      flex:0 0 auto;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(1.8rem,5vw,2.7rem);
+    }
+
+    .subtitle{
+      margin:6px 0 0;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:16px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.06);
+    }
+
+    .card h2{
+      margin:0 0 12px;
+      font-size:1.15rem;
+    }
+
+    .chat{
+      height:390px;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      padding:4px 3px 10px;
+      scroll-behavior:smooth;
+    }
+
+    .msg{
+      max-width:82%;
+      padding:11px 13px;
+      border-radius:16px;
+      line-height:1.4;
+      overflow-wrap:anywhere;
+      animation:pop .15s ease-out;
+    }
+
+    @keyframes pop{
+      from{transform:scale(.96);opacity:.4}
+      to{transform:scale(1);opacity:1}
+    }
+
+    .msg.bot{
+      background:var(--bot);
+      align-self:flex-start;
+      border-bottom-left-radius:5px;
+    }
+
+    .msg.user{
+      background:var(--user);
+      align-self:flex-end;
+      border-bottom-right-radius:5px;
+    }
+
+    .input-row{
+      display:flex;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    input, textarea{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px 13px;
+      font:inherit;
+      outline:none;
+      background:#fff;
+    }
+
+    input:focus, textarea:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(108,99,255,.12);
+    }
+
+    button{
+      border:0;
+      border-radius:14px;
+      padding:11px 15px;
+      font:inherit;
+      font-weight:700;
+      cursor:pointer;
+      transition:.15s ease;
+    }
+
+    button:hover{transform:translateY(-1px)}
+    button:active{transform:translateY(0)}
+
+    .primary{
+      background:var(--primary);
+      color:white;
+    }
+
+    .primary:hover{background:var(--primary-dark)}
+
+    .secondary{
+      background:#f3f4f6;
+      color:var(--text);
+    }
+
+    .danger{
+      background:#fee2e2;
+      color:#991b1b;
+    }
+
+    .teach{
+      display:grid;
+      gap:10px;
+    }
+
+    .example{
+      margin:0;
+      padding:10px 12px;
+      background:#f8fafc;
+      border:1px dashed #cbd5e1;
+      border-radius:12px;
+      color:#475569;
+      font-size:.92rem;
+    }
+
+    .memory{
+      margin-top:12px;
+      max-height:300px;
+      overflow:auto;
+      display:grid;
+      gap:8px;
+    }
+
+    .memory-item{
+      display:flex;
+      gap:8px;
+      align-items:flex-start;
+      justify-content:space-between;
+      background:#f8fafc;
+      border:1px solid var(--border);
+      padding:10px;
+      border-radius:13px;
+    }
+
+    .pair{
+      min-width:0;
+      line-height:1.35;
+    }
+
+    .key{
+      font-weight:800;
+      color:var(--primary-dark);
+    }
+
+    .answer{
+      color:#374151;
+      margin-top:3px;
+      overflow-wrap:anywhere;
+    }
+
+    .tiny-btn{
+      padding:6px 9px;
+      font-size:.8rem;
+      flex:0 0 auto;
+    }
+
+    .stats{
+      color:var(--muted);
+      font-size:.9rem;
+      margin:4px 0 10px;
+    }
+
+    .notice{
+      font-size:.85rem;
+      color:var(--muted);
+      margin-top:10px;
+      line-height:1.45;
+    }
+
+    .footer-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    @media (max-width:760px){
+      .grid{grid-template-columns:1fr}
+      .chat{height:340px}
+      .hero{align-items:flex-start}
+      .robot{width:60px;height:60px;font-size:32px}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="robot" aria-hidden="true">🤖</div>
+      <div>
+        <h1>Juniorobot</h1>
+        <p class="subtitle">
+          Una mini IA para niños que aprende exactamente lo que tú le enseñas.
+          No usa LLM, no usa API keys y guarda su memoria en tu dispositivo.
+        </p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>💬 Hablar con Juniorobot</h2>
+        <div id="chat" class="chat" aria-live="polite"></div>
+
+        <div class="input-row">
+          <input id="messageInput" type="text"
+                 placeholder="Escribe algo, por ejemplo: hola"
+                 autocomplete="off" />
+          <button id="sendBtn" class="primary">Enviar</button>
+        </div>
+
+        <p class="notice">
+          Juniorobot busca coincidencias exactas ignorando mayúsculas y espacios extra.
+          Si no sabe algo, te pedirá que se lo enseñes.
+        </p>
+      </div>
+
+      <aside class="card">
+        <h2>🧠 Enseñar</h2>
+
+        <div class="teach">
+          <input id="teachInput" type="text"
+                 placeholder="palabra=respuesta"
+                 autocomplete="off" />
+          <button id="teachBtn" class="primary">Aprender</button>
+          <p class="example">
+            Ejemplo:<br>
+            <strong>hola=¡Hola! ¿Cómo estás?</strong>
+          </p>
+        </div>
+
+        <div class="footer-actions">
+          <button id="exportBtn" class="secondary">Exportar memoria</button>
+          <button id="importBtn" class="secondary">Importar memoria</button>
+          <input id="importFile" type="file" accept=".json,application/json" hidden />
+          <button id="clearBtn" class="danger">Borrar todo</button>
+        </div>
+
+        <h2 style="margin-top:20px">📚 Lo que aprendí</h2>
+        <div id="stats" class="stats">0 cosas aprendidas</div>
+        <div id="memoryList" class="memory"></div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const DB_NAME = "juniorobotDB";
+    const DB_VERSION = 1;
+    const STORE_NAME = "knowledge";
+
+    let db = null;
+
+    const chat = document.getElementById("chat");
+    const messageInput = document.getElementById("messageInput");
+    const teachInput = document.getElementById("teachInput");
+    const memoryList = document.getElementById("memoryList");
+    const stats = document.getElementById("stats");
+
+    function normalize(text) {
+      return text
+        .trim()
+        .toLocaleLowerCase("es")
+        .replace(/\s+/g, " ");
+    }
+
+    function addMessage(text, who = "bot") {
+      const div = document.createElement("div");
+      div.className = `msg ${who}`;
+      div.textContent = text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onupgradeneeded = event => {
+          const database = event.target.result;
+          if (!database.objectStoreNames.contains(STORE_NAME)) {
+            database.createObjectStore(STORE_NAME, { keyPath: "key" });
+          }
+        };
+
+        request.onsuccess = () => {
+          db = request.result;
+          resolve(db);
+        };
+
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    function savePair(key, answer) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        const store = tx.objectStore(STORE_NAME);
+
+        store.put({
+          key: normalize(key),
+          originalKey: key.trim(),
+          answer: answer.trim(),
+          updatedAt: Date.now()
+        });
+
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function getPair(key) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readonly");
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.get(normalize(key));
+
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    function getAllPairs() {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readonly");
+        const store = tx.objectStore(STORE_NAME);
+        const request = store.getAll();
+
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    function deletePair(key) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).delete(key);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function clearAll() {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).clear();
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function refreshMemory() {
+      const items = await getAllPairs();
+      items.sort((a, b) => a.originalKey.localeCompare(b.originalKey, "es"));
+
+      memoryList.innerHTML = "";
+      stats.textContent = `${items.length} ${items.length === 1 ? "cosa aprendida" : "cosas aprendidas"}`;
+
+      if (items.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "example";
+        empty.textContent = "Todavía no aprendí nada. ¡Enséñame mi primera respuesta!";
+        memoryList.appendChild(empty);
+        return;
+      }
+
+      for (const item of items) {
+        const row = document.createElement("div");
+        row.className = "memory-item";
+
+        const pair = document.createElement("div");
+        pair.className = "pair";
+
+        const key = document.createElement("div");
+        key.className = "key";
+        key.textContent = item.originalKey;
+
+        const answer = document.createElement("div");
+        answer.className = "answer";
+        answer.textContent = item.answer;
+
+        const del = document.createElement("button");
+        del.className = "tiny-btn danger";
+        del.textContent = "Eliminar";
+        del.addEventListener("click", async () => {
+          await deletePair(item.key);
+          await refreshMemory();
+          addMessage(`Olvidé: "${item.originalKey}".`);
+        });
+
+        pair.appendChild(key);
+        pair.appendChild(answer);
+        row.appendChild(pair);
+        row.appendChild(del);
+        memoryList.appendChild(row);
+      }
+    }
+
+    async function teachFromText(text) {
+      const separator = text.indexOf("=");
+
+      if (separator <= 0 || separator === text.length - 1) {
+        addMessage('Para enseñarme usa este formato: palabra=respuesta');
+        return false;
+      }
+
+      const key = text.slice(0, separator).trim();
+      const answer = text.slice(separator + 1).trim();
+
+      if (!key || !answer) {
+        addMessage("Necesito una palabra y una respuesta.");
+        return false;
+      }
+
+      await savePair(key, answer);
+      await refreshMemory();
+      addMessage(`¡Aprendido! Cuando me digas "${key}", responderé: "${answer}"`);
+      return true;
+    }
+
+    async function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      addMessage(text, "user");
+      messageInput.value = "";
+
+      // También permite enseñar directamente desde el chat:
+      if (text.includes("=")) {
+        await teachFromText(text);
+        return;
+      }
+
+      const learned = await getPair(text);
+
+      if (learned) {
+        addMessage(learned.answer);
+      } else {
+        addMessage(
+          `Todavía no sé qué responder a "${text}". Puedes enseñarme escribiendo: ${text}=tu respuesta`
+        );
+      }
+    }
+
+    async function teach() {
+      const text = teachInput.value.trim();
+      if (!text) return;
+      const ok = await teachFromText(text);
+      if (ok) teachInput.value = "";
+    }
+
+    async function exportMemory() {
+      const items = await getAllPairs();
+      const data = {
+        app: "Juniorobot",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        knowledge: items
+      };
+
+      const blob = new Blob(
+        [JSON.stringify(data, null, 2)],
+        { type: "application/json" }
+      );
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "juniorobot-memoria.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function importMemory(file) {
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        const items = Array.isArray(data) ? data : data.knowledge;
+
+        if (!Array.isArray(items)) {
+          throw new Error("Formato no válido");
+        }
+
+        let count = 0;
+
+        for (const item of items) {
+          const key = item.originalKey || item.key;
+          const answer = item.answer;
+
+          if (typeof key === "string" && typeof answer === "string") {
+            await savePair(key, answer);
+            count++;
+          }
+        }
+
+        await refreshMemory();
+        addMessage(`Importé ${count} respuestas a mi memoria.`);
+      } catch (error) {
+        addMessage("No pude importar ese archivo. Revisa que sea una memoria JSON válida de Juniorobot.");
+      }
+    }
+
+    document.getElementById("sendBtn").addEventListener("click", sendMessage);
+    document.getElementById("teachBtn").addEventListener("click", teach);
+
+    messageInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") sendMessage();
+    });
+
+    teachInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") teach();
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", exportMemory);
+
+    const importFile = document.getElementById("importFile");
+    document.getElementById("importBtn").addEventListener("click", () => importFile.click());
+
+    importFile.addEventListener("change", async () => {
+      const file = importFile.files[0];
+      if (file) await importMemory(file);
+      importFile.value = "";
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", async () => {
+      const confirmed = confirm("¿Seguro que quieres borrar toda la memoria de Juniorobot?");
+      if (!confirmed) return;
+
+      await clearAll();
+      await refreshMemory();
+      addMessage("Mi memoria quedó vacía. ¡Puedes volver a enseñarme!");
+    });
+
+    async function start() {
+      try {
+        await openDB();
+        await refreshMemory();
+
+        addMessage("¡Hola! Soy Juniorobot 🤖");
+        addMessage("Puedes enseñarme cosas escribiendo, por ejemplo: hola=¡Hola, amigo!");
+      } catch (error) {
+        console.error(error);
+        addMessage("No pude abrir mi memoria IndexedDB en este navegador.");
+      }
+    }
+
+    start();
+  </script>
+</body>
+</html>
